@@ -80,7 +80,7 @@ impl Future for AppRunFuture<'_> {
             let args     = unsafe { Vec::from_raw_parts(args_ptr as (*mut u8), args_len, args_len) };
             match (id.as_str()) {
 
-                "flywheel_player_join" => {
+                "flywheel_player_joined" => {
                     let session_id = u64::from_ne_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
                     let player     = unsafe { Player::from_session_id(session_id) };
                     App::fire(&self.app.on_player_joined, (player,))
