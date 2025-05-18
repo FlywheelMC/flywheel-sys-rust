@@ -11,8 +11,8 @@
 )]
 
 
-mod scheduler;
-pub use scheduler::App;
+mod internal;
+pub use internal::App;
 
 pub mod game;
 
@@ -25,7 +25,7 @@ mod selfhosted;
 
 
 pub mod prelude {
-    pub use super::scheduler::App;
+    pub use super::internal::App;
 
     pub use super::game::prelude::*;
 
