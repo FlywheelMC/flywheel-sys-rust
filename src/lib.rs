@@ -18,6 +18,7 @@ pub mod game;
 
 pub mod time;
 pub mod rand;
+pub use uuid;
 
 #[cfg(any(doc, feature = "selfhosted"))]
 mod selfhosted;
@@ -30,6 +31,7 @@ pub mod prelude {
 
     pub use super::time::{ Duration, Instant };
     pub use super::rand::{ self, GetRandom };
+    pub use super::uuid::Uuid;
 
     #[cfg(any(doc, feature = "selfhosted"))]
     #[doc(cfg(feature = "selfhosted"))]

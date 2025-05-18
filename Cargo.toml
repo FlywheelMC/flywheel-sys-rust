@@ -28,3 +28,6 @@ unused_parens = "allow"
 
 [dependencies.wasm-rs-async-executor]
 version = "0.9"
+
+[dependencies.uuid]
+version = "1.16"

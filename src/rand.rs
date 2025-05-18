@@ -1,3 +1,6 @@
+use crate::uuid::Uuid;
+
+
 unsafe extern "C" {
     unsafe fn flywheel_rand_bool(out_u8 : u32);
     unsafe fn flywheel_rand_u8(out_u8 : u32);
@@ -18,7 +21,7 @@ impl GetRandom for bool {
     fn random() -> Self {
         let mut out = 0u8;
         unsafe { flywheel_rand_bool((&mut out) as (*mut _) as u32); }
-        out != 0
+        u8::from_le(out) != 0
     }
 }
 
@@ -26,7 +29,7 @@ impl GetRandom for u8 {
     fn random() -> Self {
         let mut out = 0u8;
         unsafe { flywheel_rand_u8((&mut out) as (*mut _) as u32); }
-        out
+        Self::from_le(out)
     }
 }
 impl GetRandom for i8 {
@@ -37,7 +40,7 @@ impl GetRandom for u16 {
     fn random() -> Self {
         let mut out = 0u16;
         unsafe { flywheel_rand_u16((&mut out) as (*mut _) as u32); }
-        out
+        Self::from_le(out)
     }
 }
 impl GetRandom for i16 {
@@ -48,7 +51,7 @@ impl GetRandom for u32 {
     fn random() -> Self {
         let mut out = 0u32;
         unsafe { flywheel_rand_u32((&mut out) as (*mut _) as u32); }
-        out
+        Self::from_le(out)
     }
 }
 impl GetRandom for i32 {
@@ -59,7 +62,7 @@ impl GetRandom for u64 {
     fn random() -> Self {
         let mut out = 0u64;
         unsafe { flywheel_rand_u64((&mut out) as (*mut _) as u32); }
-        out
+        Self::from_le(out)
     }
 }
 impl GetRandom for i64 {
@@ -70,7 +73,7 @@ impl GetRandom for u128 {
     fn random() -> Self {
         let mut out = 0u128;
         unsafe { flywheel_rand_u128((&mut out) as (*mut _) as u32); }
-        out
+        Self::from_le(out)
     }
 }
 impl GetRandom for i128 {
@@ -79,16 +82,22 @@ impl GetRandom for i128 {
 
 impl GetRandom for f32 {
     fn random() -> Self {
-        let mut out = 0.0f32;
+        let mut out = 0u32;
         unsafe { flywheel_rand_f32((&mut out) as (*mut _) as u32); }
-        out
+        Self::from_bits(u32::from_le(out))
     }
 }
 
 impl GetRandom for f64 {
     fn random() -> Self {
-        let mut out = 0.0f64;
+        let mut out = 0u64;
         unsafe { flywheel_rand_f64((&mut out) as (*mut _) as u32); }
-        out
+        Self::from_bits(u64::from_le(out))
+    }
+}
+
+impl GetRandom for Uuid {
+    fn random() -> Self {
+        Uuid::from_u128(u128::random())
     }
 }

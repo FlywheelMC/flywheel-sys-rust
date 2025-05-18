@@ -1,6 +1,10 @@
 use crate::prelude::*;
 
 
+mod profile;
+pub use profile::PlayerProfile;
+
+
 unsafe extern "C" {
     unsafe fn flywheel_player_send_chat(session_id : u64, in_msg : u32, msg_len : u32);
     unsafe fn flywheel_player_send_actionbar(session_id : u64, in_msg : u32, msg_len : u32);
@@ -41,6 +45,26 @@ impl Player {
 
     #[inline]
     pub fn session_id(&self) -> u64 { self.session_id }
+
+    pub fn profile(&self) -> Option<PlayerProfile> {
+        let mut name_ptr = 0u32;
+        let mut name_len = 0u32;
+        let mut uuid     = 0u128;
+        if (unsafe { profile::flywheel_profile_from_session(
+            self.session_id,
+            (&mut uuid) as (*mut _) as u32,
+            (&mut name_ptr) as (*mut _) as u32,
+            (&mut name_len) as (*mut _) as u32
+        ) } == 0) { None } else {
+            let name_len = name_len as usize;
+            let name = unsafe { String::from_raw_parts(name_ptr as (*mut u8), name_len, name_len) };
+            Some(PlayerProfile { uuid : Uuid::from_u128_le(uuid), name })
+        }
+    }
+
+}
+
+impl Player {
 
     pub fn send_chat(&self, msg : &str) {
         unsafe { flywheel_player_send_chat(self.session_id, msg.as_ptr() as u32, msg.len() as u32); }
