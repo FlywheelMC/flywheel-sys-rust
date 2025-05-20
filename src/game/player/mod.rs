@@ -4,22 +4,22 @@ use crate::prelude::*;
 mod profile;
 pub use profile::PlayerProfile;
 
+mod world;
+pub use world::{ World, Block };
+
 
 unsafe extern "C" {
     unsafe fn flywheel_player_send_chat(session_id : u64, in_msg : u32, msg_len : u32);
     unsafe fn flywheel_player_send_actionbar(session_id : u64, in_msg : u32, msg_len : u32);
     unsafe fn flywheel_player_send_title(
-        session_id     : u64,
-        in_title       : u32,
-        title_len      : u32,
-        in_subtitle    : u32,
-        subtitle_len   : u32,
-        fade_in_secs   : u64,
-        fade_in_nanos  : u32,
-        stay_secs      : u64,
-        stay_nanos     : u32,
-        fade_out_secs  : u64,
-        fade_out_nanos : u32
+        session_id   : u64,
+        in_title     : u32,
+        title_len    : u32,
+        in_subtitle  : u32,
+        subtitle_len : u32,
+        fade_in      : u32,
+        stay         : u32,
+        fade_out     : u32
     );
     unsafe fn flywheel_player_send_sound(
         session_id : u64,
@@ -62,6 +62,10 @@ impl Player {
         }
     }
 
+    pub fn world(&self) -> World<'_> {
+        World { player : self }
+    }
+
 }
 
 impl Player {
@@ -84,9 +88,9 @@ impl Player {
         self.session_id,
         title.as_ptr() as u32, title.len() as u32,
         subtitle.as_ptr() as u32, subtitle.len() as u32,
-        fade_in.as_secs(), fade_in.subsec_nanos(),
-        stay.as_secs(), stay.subsec_nanos(),
-        fade_out.as_secs(), fade_out.subsec_nanos()
+        fade_in.as_ticks(),
+        stay.as_ticks(),
+        fade_out.as_ticks()
     ); } }
 
     pub fn send_sound(&self,

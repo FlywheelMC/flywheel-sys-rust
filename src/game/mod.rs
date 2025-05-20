@@ -6,7 +6,7 @@ pub mod data;
 
 pub mod prelude {
     pub use super::server::Server;
-    pub use super::player::Player;
+    pub use super::player::{ Player, World, Block };
 
-    pub use super::data::SoundCategory;
+    pub use super::data::{ ChunkPos, BlockPos, SoundCategory };
 }

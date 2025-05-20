@@ -29,7 +29,7 @@ pub mod prelude {
 
     pub use super::game::prelude::*;
 
-    pub use super::time::{ Duration, Instant };
+    pub use super::time::{ Duration, DurationExt, Instant };
     pub use super::rand::{ self, GetRandom };
     pub use super::uuid::Uuid;
 

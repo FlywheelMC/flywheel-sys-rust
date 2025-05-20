@@ -1,4 +1,5 @@
 use crate::game::player::Player;
+use crate::game::data::ChunkPos;
 use core::marker::Tuple;
 use core::pin::Pin;
 use core::task::{ Context, Poll };
@@ -14,10 +15,12 @@ unsafe extern "C" {
 type EventCallbacks<Args> = Vec<Box<dyn Fn<Args, Output = Pin<Box<dyn Future<Output = ()>>>>>>;
 #[derive(Default)]
 pub struct App {
-    on_start         : EventCallbacks<()>,
-    //on_stopping      : EventCallbacks<()>,
-    on_player_joined : EventCallbacks<(Player,)>,
-    on_player_left   : EventCallbacks<(Player,)>
+    on_start                : EventCallbacks<()>,
+    //on_stopping             : EventCallbacks<()>,
+    on_player_joined        : EventCallbacks<(Player,)>,
+    on_player_left          : EventCallbacks<(Player,)>,
+    on_world_chunk_loading  : EventCallbacks<(Player, ChunkPos,)>,
+    on_world_chunk_unloaded : EventCallbacks<(Player, ChunkPos,)>
 }
 
 impl App {
@@ -52,8 +55,10 @@ macro event_fn( $ident:ident ( $( $argident:ident : $argty:ty ),* $(,)? ) ) {
 
 impl App {
     event_fn!{ on_start(,) }
-    event_fn!{ on_player_joined(player : Player,) }
-    event_fn!{ on_player_left(player : Player,) }
+    event_fn!{ on_player_joined(player : Player) }
+    event_fn!{ on_player_left(player : Player) }
+    event_fn!{ on_world_chunk_loading(player : Player, pos : ChunkPos) }
+    event_fn!{ on_world_chunk_unloaded(player : Player, pos : ChunkPos) }
 }
 
 
@@ -81,15 +86,31 @@ impl Future for AppRunFuture<'_> {
             match (id.as_str()) {
 
                 "flywheel_player_joined" => {
-                    let session_id = u64::from_ne_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
+                    let session_id = u64::from_le_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
                     let player     = unsafe { Player::from_session_id(session_id) };
                     App::fire(&self.app.on_player_joined, (player,))
                 },
-
                 "flywheel_player_left" => {
-                    let session_id = u64::from_ne_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
+                    let session_id = u64::from_le_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
                     let player     = unsafe { Player::from_session_id(session_id) };
                     App::fire(&self.app.on_player_left, (player,))
+                },
+
+                "flywheel_world_chunk_loading" => {
+                    let session_id = u64::from_le_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
+                    let player     = unsafe { Player::from_session_id(session_id) };
+                    let x          = i32::from_le_bytes(*unsafe { args.get_unchecked(8..).as_chunks_unchecked::<4>().get_unchecked(0) });
+                    let z          = i32::from_le_bytes(*unsafe { args.get_unchecked(12..).as_chunks_unchecked::<4>().get_unchecked(0) });
+                    let pos        = ChunkPos::new(x, z);
+                    App::fire(&self.app.on_world_chunk_loading, (player, pos,))
+                },
+                "flywheel_world_chunk_unloaded" => {
+                    let session_id = u64::from_le_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
+                    let player     = unsafe { Player::from_session_id(session_id) };
+                    let x          = i32::from_le_bytes(*unsafe { args.get_unchecked(8..).as_chunks_unchecked::<4>().get_unchecked(0) });
+                    let z          = i32::from_le_bytes(*unsafe { args.get_unchecked(12..).as_chunks_unchecked::<4>().get_unchecked(0) });
+                    let pos        = ChunkPos::new(x, z);
+                    App::fire(&self.app.on_world_chunk_unloaded, (player, pos,))
                 },
 
                 _ => {

@@ -78,3 +78,34 @@ impl SubAssign<Duration> for Instant {
         *self = *self - other;
     }
 }
+
+
+pub trait DurationExt {
+
+    const TICK : Self;
+
+    fn from_ticks(ticks : u32) -> Self;
+
+    fn as_ticks(&self) -> u32;
+
+    fn subsec_ticks(&self) -> u32;
+
+}
+
+impl DurationExt for Duration {
+
+    const TICK : Self = Self::from_millis(50);
+
+    fn from_ticks(ticks : u32) -> Self {
+        Self::from_millis((ticks as u64) * 50)
+    }
+
+    fn as_ticks(&self) -> u32 {
+        (self.as_millis() / 50) as u32
+    }
+
+    fn subsec_ticks(&self) -> u32 {
+        self.subsec_millis() / 50
+    }
+
+}
