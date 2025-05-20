@@ -1,21 +1,15 @@
 use crate::prelude::*;
 
 
+#[allow(dead_code)]
 unsafe extern "C" {
     pub unsafe fn flywheel_system_set_motd(in_motd : u32, motd_len : u32);
-    #[allow(dead_code)]
     pub unsafe fn flywheel_trace(in_msg : u32, msg_len : u32);
-    #[allow(dead_code)]
     pub unsafe fn flywheel_debug(in_msg : u32, msg_len : u32);
-    #[allow(dead_code)]
     pub unsafe fn flywheel_info(in_msg : u32, msg_len : u32);
-    #[allow(dead_code)]
     pub unsafe fn flywheel_pass(in_msg : u32, msg_len : u32);
-    #[allow(dead_code)]
     pub unsafe fn flywheel_warn(in_msg : u32, msg_len : u32);
-    #[allow(dead_code)]
     pub unsafe fn flywheel_error(in_msg : u32, msg_len : u32);
-    #[allow(dead_code)]
     pub unsafe fn flywheel_fatal(in_msg : u32, msg_len : u32);
 }
 

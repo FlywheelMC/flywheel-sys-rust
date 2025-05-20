@@ -1,3 +1,6 @@
+#![doc = include_str!("../README.md")]
+
+
 #![feature(
     // Language
     decl_macro,
@@ -24,6 +27,7 @@ pub use uuid;
 mod selfhosted;
 
 
+/// Commonly used items.
 pub mod prelude {
     pub use super::internal::App;
 

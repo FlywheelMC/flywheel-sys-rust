@@ -6,7 +6,10 @@ unsafe extern "C" {
 }
 
 
+/// Publically available account information.
 pub struct PlayerProfile {
+    /// The account UUID of the player.
     pub uuid : Uuid,
+    /// The username of the player.
     pub name : String
 }

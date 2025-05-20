@@ -1,4 +1,4 @@
-use crate::game::player::Player;
+use crate::game::Player;
 use crate::game::data::ChunkPos;
 use core::marker::Tuple;
 use core::pin::Pin;
@@ -13,6 +13,8 @@ unsafe extern "C" {
 
 
 type EventCallbacks<Args> = Vec<Box<dyn Fn<Args, Output = Pin<Box<dyn Future<Output = ()>>>>>>;
+
+/// A Flywheel application.
 #[derive(Default)]
 pub struct App {
     on_start                : EventCallbacks<()>,
@@ -25,8 +27,10 @@ pub struct App {
 
 impl App {
 
+    /// Creates a new `App`.
     pub fn new() -> Self { Self::default() }
 
+    /// Runs the `App`.
     pub fn run(&mut self) {
         task::block_on(async {
             Self::fire(&self.on_start, ());
@@ -43,6 +47,7 @@ impl App {
 }
 
 macro event_fn( $ident:ident ( $( $argident:ident : $argty:ty ),* $(,)? ) ) {
+    #[doc = concat!( "Registers a new callback for the `", stringify!( $ident ), "` event." )]
     pub fn $ident<F, Fut>(&mut self, f : F) -> &mut Self
     where
         F   : (Fn( $( $argty , )* ) -> Fut) + 'static,

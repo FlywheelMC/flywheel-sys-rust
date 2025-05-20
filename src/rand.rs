@@ -1,3 +1,6 @@
+//! Random value generators.
+
+
 use crate::uuid::Uuid;
 
 
@@ -13,8 +16,12 @@ unsafe extern "C" {
 }
 
 
+/// Generate a random values of type `Self`.
 pub trait GetRandom {
+
+    /// Generate a uniform random value of type `Self`.
     fn random() -> Self;
+
 }
 
 impl GetRandom for bool {

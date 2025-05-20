@@ -24,6 +24,7 @@ unstable   = [ ]
 
 [lints.rust]
 unused_parens = "allow"
+missing_docs  = "forbid"
 
 
 [dependencies.wasm-rs-async-executor]
