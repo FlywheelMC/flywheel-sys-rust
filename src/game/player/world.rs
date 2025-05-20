@@ -29,13 +29,15 @@ impl World<'_> {
     /// Sets multiple blocks in the world.
     ///
     /// This is an expensive operation.
-    pub fn batch_set<'l, I>(&self, blocks : I)
+    pub fn batch_set<I, B>(&self, blocks : I)
     where
-        I : IntoIterator<Item = (BlockPos, &'l Block,)>
+        I : IntoIterator<Item = (BlockPos, B,)>,
+        B : AsRef<Block>
     {
         let mut data = vec![0u8; mem::size_of::<u32>()];
         let mut count = 0u32;
         for (pos, block,) in blocks {
+            let block = block.as_ref();
             count += 1;
             data.extend(pos.x.to_le_bytes());
             data.extend(pos.y.to_le_bytes());
@@ -50,6 +52,7 @@ impl World<'_> {
                 data.extend(value.as_bytes());
             }
         }
+        if (count == 0) { return; }
         data[0..(mem::size_of::<u32>())].copy_from_slice(&count.to_le_bytes());
         unsafe { flywheel_world_set_blocks(
             self.player.session_id,

@@ -154,7 +154,7 @@ impl Block {
     pub fn id(&self) -> &str { &self.id }
 
     /// Sets a property of this block.
-    /// 
+    ///
     /// For a variant of this function which returns `self` see [`Self::with`].
     pub fn set(&mut self, state : &str, value : &str) -> &mut Self {
         self.states.insert(state.to_string(), value.to_string());
@@ -163,7 +163,7 @@ impl Block {
     }
 
     /// Sets a property of this block.
-    /// 
+    ///
     /// For a variant of this function which mutates `self` see [`Self::set`].
     #[inline]
     pub fn with(mut self, state : &str, value : &str) -> Self {
@@ -188,3 +188,6 @@ impl Block {
 
 }
 
+impl AsRef<Block> for Block {
+    fn as_ref(&self) -> &Block { self }
+}
