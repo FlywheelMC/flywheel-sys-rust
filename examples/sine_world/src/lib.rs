@@ -24,7 +24,7 @@ async fn player_joined(player : Player) {
 
 async fn load_chunk(player : Player, pos : ChunkPos) {
     player.send_chat(&format!("<grey>Loaded chunk ({}, {})</>", pos.x, pos.z));
-    // player.world().set(pos.min_block(), &Block::new("minecraft:stone"));
+    player.world().set(pos.min_block(), &Block::new("minecraft:stone"));
 }
 
 async fn unload_chunk(player : Player, pos : ChunkPos) {
