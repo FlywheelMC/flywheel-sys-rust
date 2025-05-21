@@ -1,9 +1,10 @@
 use crate::game::player::Player;
-use crate::game::data::{ BlockPos, Block };
+use crate::game::data::{ BlockPos, ChunkPos, Block };
 use core::mem;
 
 
 unsafe extern "C" {
+    safe fn flywheel_world_mark_ready(session_id : u64, x : i32, z : i32);
     unsafe fn flywheel_world_set_blocks(session_id : u64, in_data : u32);
 }
 
@@ -16,6 +17,11 @@ pub struct World<'l> {
 }
 
 impl World<'_> {
+
+    /// Marks a chunk as ready to load.
+    pub fn mark_ready(&self, chunk : ChunkPos) {
+        flywheel_world_mark_ready(self.player.session_id, chunk.x, chunk.z);
+    }
 
     /// Set a single block in the world.
     ///

@@ -12,4 +12,5 @@ unused_parens = "allow"
 
 
 [dependencies.flywheel-sys]
-path = "../../"
+path     = "../../"
+features = [ "selfhosted" ]

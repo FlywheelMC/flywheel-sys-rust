@@ -23,9 +23,9 @@ async fn player_joined(player : Player) {
 
 const SINE_FREQ : f32 = 0.0625;
 const SINE_AMP  : f32 = 5.0;
-async fn load_chunk(player : Player, pos : ChunkPos) {
+async fn load_chunk(player : Player, chunk : ChunkPos) {
     let mut blocks = Vec::new();
-    let min = pos.min_block();
+    let min = chunk.min_block();
     for dx in 0..16 {
         for dz in 0..16 {
             let x  = min.x + dx;
@@ -39,5 +39,8 @@ async fn load_chunk(player : Player, pos : ChunkPos) {
             }
         }
     }
-    player.world().batch_set(blocks);
+    //player.send_chat(&format!("<#ff0000>{:?}</>", chunk));
+    let world = player.world();
+    world.batch_set(blocks);
+    world.mark_ready(chunk);
 }
