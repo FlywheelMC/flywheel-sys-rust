@@ -20,6 +20,7 @@ rust-version = "1.89"
 [features]
 selfhosted = [ ]
 unstable   = [ ]
+chrono     = [ "dep:chrono" ]
 
 
 [lints.rust]
@@ -29,6 +30,14 @@ missing_docs  = "forbid"
 
 [dependencies.wasm-rs-async-executor]
 version = "0.9"
+[dependencies.pin-project]
+version = "1.1"
 
 [dependencies.uuid]
 version = "1.16"
+
+[dependencies.chrono]
+version          = "0.4"
+default-features = false
+features         = [ "clock", "oldtime", "std" ]
+optional         = true

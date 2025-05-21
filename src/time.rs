@@ -66,6 +66,13 @@ impl Instant {
         Some(Self { after_epoch : self.after_epoch.checked_sub(duration)? })
     }
 
+    /// Converts this `Instant` to a [`chrono::DateTime<Utc>`](chrono::DateTime).
+    #[cfg(any(doc, feature = "chrono"))]
+    #[doc(cfg(feature = "chorno"))]
+    pub fn as_chrono(&self) -> chrono::DateTime<chrono::Utc> {
+        chrono::DateTime::UNIX_EPOCH + self.after_epoch
+    }
+
 }
 
 impl Add<Duration> for Instant {

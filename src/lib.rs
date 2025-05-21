@@ -17,6 +17,8 @@
 mod internal;
 pub use internal::App;
 
+pub mod task;
+
 pub mod game;
 
 pub mod time;
@@ -31,9 +33,14 @@ mod selfhosted;
 pub mod prelude {
     pub use super::internal::App;
 
+    pub use super::task;
+
     pub use super::game::prelude::*;
 
     pub use super::time::{ Duration, DurationExt, Instant };
+    #[cfg(any(doc, feature = "chrono"))]
+    #[doc(cfg(feature = "chrono"))]
+    pub use chrono;
     pub use super::rand::{ self, GetRandom };
     pub use super::uuid::Uuid;
 
