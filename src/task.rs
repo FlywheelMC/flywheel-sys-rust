@@ -33,7 +33,7 @@ pub struct Sleep {
 }
 impl Future for Sleep {
     type Output = ();
-    fn poll(self : Pin<&mut Self>, ctx : &mut Context<'_>) -> Poll<Self::Output> {
+    fn poll(self : Pin<&mut Self>, _ctx : &mut Context<'_>) -> Poll<Self::Output> {
         if (Instant::now() >= self.timeout) {
             Poll::Ready(())
         } else {

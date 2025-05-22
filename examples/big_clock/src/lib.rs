@@ -40,45 +40,39 @@ async fn plot_started() {
 
     let player = unsafe { Player::from_session_id(0) };
     let world  = player.world();
+
+    let mut blocks = BTreeMap::new();
     loop {
         task::sleep(Duration::from_ticks(10)).await;
-        let mut blocks = Vec::new();
+        blocks.clear();
+        (0..10).flat_map(|y| (0..57).into_iter()
+                .map(move |x| (
+                    (x, y,),
+                    Block::new("minecraft:tinted_glass"),
+                ))
+            )
+            .collect_into(&mut blocks);
 
-        let solid = (Instant::now() - Duration::from_hours(4))
+        (Instant::now() - Duration::from_hours(4))
             .as_chrono().format("%H:%M:%S").to_string()
             .chars()
             .enumerate()
             .flat_map(|(i, c,)| faces.get(&c).unwrap().iter()
-                .map(move |(x, y,)| (x + (7*i), *y,))
+                .map(move |&(x, y,)| (
+                    (x + (7 * i) + 1, y + 1,),
+                    Block::new("minecraft:white_concrete"),
+                ))
             )
-            .collect::<Vec<_>>();
-
-        (0..8).into_iter()
-            .flat_map(|y| (0..56).into_iter()
-                .map(move |x| (x, y,))
-            )
-            .filter(|p| ! solid.contains(p))
-            .map(|(x, y,)| (
-                BlockPos::new(x as i64, 0, y as i64),
-                Block::new("minecraft:air"),
-            ))
             .collect_into(&mut blocks);
 
-        solid
-            .into_iter()
-            .map(|(x, y,)| (
-                BlockPos::new(x as i64, 0, y as i64),
-                Block::new("minecraft:black_concrete"),
-            ))
-            .collect_into(&mut blocks);
-
-        debug!("Update");
-        world.batch_set(blocks);
+        world.batch_set(blocks.iter().map(|(&(x, y,), v,)| (
+            BlockPos::new(x as i64, 0, y as i64,),
+            v,
+        )));
     }
 }
 
 
 async fn chunk_load(player : Player, chunk : ChunkPos) {
-    debug!("Loading {:?}", chunk);
     player.world().mark_ready(chunk);
 }
