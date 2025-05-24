@@ -16,7 +16,6 @@ const CHARS : &str = "0123456789:";
 pub fn flywheel_main() {
     App::new()
         .on_start(plot_started)
-        .on_world_chunk_loading(chunk_load)
         .run();
 }
 
@@ -41,8 +40,11 @@ async fn plot_started() {
     let player = unsafe { Player::from_session_id(0) };
     let world  = player.world();
 
+    let mut next_update = Instant::now();
+
     loop {
-        task::sleep(Duration::from_ticks(10)).await;
+        task::sleep_until(next_update).await;
+        next_update += Duration::from_secs(1);
 
         let mut batch_set = world.batch_set();
 
@@ -66,9 +68,4 @@ async fn plot_started() {
 
         batch_set.submit();
     }
-}
-
-
-async fn chunk_load(player : Player, chunk : ChunkPos) {
-    player.world().mark_ready(chunk);
 }

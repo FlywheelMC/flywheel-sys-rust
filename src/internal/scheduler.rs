@@ -38,10 +38,11 @@ impl App {
         })
     }
 
-    fn fire<T : Tuple + Clone>(callbacks : &EventCallbacks<T>, args : T) {
+    fn fire<T : Tuple + Clone>(callbacks : &EventCallbacks<T>, args : T) -> usize {
         for callback in callbacks {
             task::spawn(callback.call(args.clone()));
         }
+        callbacks.len()
     }
 
 }
@@ -93,12 +94,12 @@ impl Future for AppRunFuture<'_> {
                 "flywheel_player_joined" => {
                     let session_id = u64::from_le_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
                     let player     = unsafe { Player::from_session_id(session_id) };
-                    App::fire(&self.app.on_player_joined, (player,))
+                    App::fire(&self.app.on_player_joined, (player,));
                 },
                 "flywheel_player_left" => {
                     let session_id = u64::from_le_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
                     let player     = unsafe { Player::from_session_id(session_id) };
-                    App::fire(&self.app.on_player_left, (player,))
+                    App::fire(&self.app.on_player_left, (player,));
                 },
 
                 "flywheel_world_chunk_loading" => {
@@ -107,7 +108,9 @@ impl Future for AppRunFuture<'_> {
                     let x          = i32::from_le_bytes(*unsafe { args.get_unchecked(8..).as_chunks_unchecked::<4>().get_unchecked(0) });
                     let z          = i32::from_le_bytes(*unsafe { args.get_unchecked(12..).as_chunks_unchecked::<4>().get_unchecked(0) });
                     let pos        = ChunkPos::new(x, z);
-                    App::fire(&self.app.on_world_chunk_loading, (player, pos,))
+                    if (App::fire(&self.app.on_world_chunk_loading, (player, pos,)) == 0) {
+                        player.world().mark_ready(pos);
+                    }
                 },
                 "flywheel_world_chunk_unloaded" => {
                     let session_id = u64::from_le_bytes(*unsafe { args.as_chunks_unchecked::<8>().get_unchecked(0) });
@@ -115,7 +118,7 @@ impl Future for AppRunFuture<'_> {
                     let x          = i32::from_le_bytes(*unsafe { args.get_unchecked(8..).as_chunks_unchecked::<4>().get_unchecked(0) });
                     let z          = i32::from_le_bytes(*unsafe { args.get_unchecked(12..).as_chunks_unchecked::<4>().get_unchecked(0) });
                     let pos        = ChunkPos::new(x, z);
-                    App::fire(&self.app.on_world_chunk_unloaded, (player, pos,))
+                    App::fire(&self.app.on_world_chunk_unloaded, (player, pos,));
                 },
 
                 _ => {
