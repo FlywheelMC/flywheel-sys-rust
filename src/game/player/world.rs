@@ -1,6 +1,6 @@
-use crate::game::player::Player;
 use crate::game::data::{ BlockPos, ChunkPos, Block };
 use core::mem;
+use std::collections::BTreeMap;
 
 
 unsafe extern "C" {
@@ -12,37 +12,60 @@ unsafe extern "C" {
 /// A [`Player`]'s world.
 ///
 /// Each player has their own world with its own blocks and entities.
-pub struct World<'l> {
-    pub(super) player : &'l Player
+#[derive(Clone, Copy)]
+pub struct World {
+    pub(super) session_id : u64
 }
 
-impl World<'_> {
+impl World {
 
     /// Marks a chunk as ready to load.
     pub fn mark_ready(&self, chunk : ChunkPos) {
-        flywheel_world_mark_ready(self.player.session_id, chunk.x, chunk.z);
+        flywheel_world_mark_ready(self.session_id, chunk.x, chunk.z);
     }
 
     /// Set a single block in the world.
     ///
     /// This is an expensive operation. Consider using [`World::batch_set`] to set multiple block at once.
-    #[inline]
-    pub fn set(&self, pos : BlockPos, block : &Block) {
-        self.batch_set([(pos, block,)])
+    pub fn set(&self, pos : BlockPos, block : Block) {
+        self.batch_set()
+            .with(pos, block)
+            .submit();
     }
 
 
     /// Sets multiple blocks in the world.
     ///
     /// This is an expensive operation.
-    pub fn batch_set<I, B>(&self, blocks : I)
-    where
-        I : IntoIterator<Item = (BlockPos, B,)>,
-        B : AsRef<Block>
-    {
+    #[inline]
+    pub fn batch_set(&self) -> BatchSet {
+        BatchSet { session_id : self.session_id, blocks : BTreeMap::new() }
+    }
+
+}
+
+
+pub struct BatchSet {
+    session_id : u64,
+    blocks     : BTreeMap<BlockPos, Block>
+}
+
+impl BatchSet {
+
+    pub fn put(&mut self, pos : BlockPos, block : Block) {
+        self.blocks.insert(pos, block);
+    }
+
+    pub fn with(mut self, pos : BlockPos, block : Block) -> Self {
+        self.put(pos, block);
+        self
+    }
+
+
+    pub fn submit(self) {
         let mut data = vec![0u8; mem::size_of::<u32>()];
         let mut count = 0u32;
-        for (pos, block,) in blocks {
+        for (pos, block,) in self.blocks {
             let block = block.as_ref();
             count += 1;
             data.extend(pos.x.to_le_bytes());
@@ -61,7 +84,7 @@ impl World<'_> {
         if (count == 0) { return; }
         data[0..(mem::size_of::<u32>())].copy_from_slice(&count.to_le_bytes());
         unsafe { flywheel_world_set_blocks(
-            self.player.session_id,
+            self.session_id,
             data.as_ptr() as u32
         ); }
     }

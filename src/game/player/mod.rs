@@ -82,8 +82,8 @@ impl Player {
     }
 
     /// Access to the player's world.
-    pub fn world(&self) -> World<'_> {
-        World { player : self }
+    pub fn world(&self) -> World {
+        World { session_id : self.session_id }
     }
 
 }

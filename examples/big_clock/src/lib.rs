@@ -41,34 +41,30 @@ async fn plot_started() {
     let player = unsafe { Player::from_session_id(0) };
     let world  = player.world();
 
-    let mut blocks = BTreeMap::new();
     loop {
         task::sleep(Duration::from_ticks(10)).await;
-        blocks.clear();
-        (0..10).flat_map(|y| (0..57).into_iter()
-                .map(move |x| (
-                    (x, y,),
-                    Block::new("minecraft:tinted_glass"),
-                ))
-            )
-            .collect_into(&mut blocks);
 
-        (Instant::now() - Duration::from_hours(4))
+        let mut batch_set = world.batch_set();
+
+        for y in 0..10 {
+            for x in 0..57 {
+                batch_set.put(BlockPos::new(x, 0, y), Block::new("minecraft:tinted_glass"));
+            }
+        }
+
+        for (i, ch,) in (Instant::now() - Duration::from_hours(4))
             .as_chrono().format("%H:%M:%S").to_string()
             .chars()
             .enumerate()
-            .flat_map(|(i, c,)| faces.get(&c).unwrap().iter()
-                .map(move |&(x, y,)| (
-                    (x + (7 * i) + 1, y + 1,),
-                    Block::new("minecraft:white_concrete"),
-                ))
-            )
-            .collect_into(&mut blocks);
+        {
+            for (x, y,) in faces.get(&ch).unwrap() {
+                let x = x + (7 * i) + 1;
+                let y = y + 1;
+                batch_set.put(BlockPos::new(x as _, 0, y as _), Block::new("minecraft:white_concrete"));
+            }
+        }
 
-        world.batch_set(blocks.iter().map(|(&(x, y,), v,)| (
-            BlockPos::new(x as i64, 0, y as i64,),
-            v,
-        )));
+        batch_set.submit();
     }
 }
 

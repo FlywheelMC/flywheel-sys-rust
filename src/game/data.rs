@@ -6,7 +6,7 @@ use std::collections::HashMap;
 
 
 /// A chunk position in the world.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct ChunkPos {
     /// The x position of this `ChunkPos`.
     pub x : i32,
@@ -51,7 +51,7 @@ impl ChunkPos {
 
 
 /// A block position in the world.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BlockPos {
     /// The x position of this `BlockPos`.
     pub x : i64,

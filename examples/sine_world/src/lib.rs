@@ -24,7 +24,7 @@ async fn player_joined(player : Player) {
 const SINE_FREQ : f32 = 0.0625;
 const SINE_AMP  : f32 = 5.0;
 async fn load_chunk(player : Player, chunk : ChunkPos) {
-    let mut blocks = Vec::new();
+    let mut batch_set = player.world().batch_set();
     let min = chunk.min_block();
     for dx in 0..16 {
         for dz in 0..16 {
@@ -36,12 +36,10 @@ async fn load_chunk(player : Player, chunk : ChunkPos) {
             let mat = if (dx == 0 || dz == 0 || dx == 15 || dz == 15)
                 { "minecraft:black_concrete" } else { "minecraft:white_concrete" };
             for y in 0..=h {
-                blocks.push((BlockPos::new(x, y, z), Block::new(mat),));
+                batch_set.put(BlockPos::new(x, y, z), Block::new(mat));
             }
         }
     }
-    //player.send_chat(&format!("<#ff0000>{:?}</>", chunk));
-    let world = player.world();
-    world.batch_set(blocks);
-    world.mark_ready(chunk);
+    batch_set.submit();
+    player.world().mark_ready(chunk);
 }
