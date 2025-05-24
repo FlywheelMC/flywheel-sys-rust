@@ -65,7 +65,7 @@ impl Player {
     /// Requests this player's profile.
     ///
     /// If this player is no longer on the server, `None` is returned.
-    pub fn profile(&self) -> Option<PlayerProfile> {
+    pub fn fetch_profile(&self) -> Option<PlayerProfile> {
         let mut name_ptr = 0u32;
         let mut name_len = 0u32;
         let mut uuid     = 0u128;

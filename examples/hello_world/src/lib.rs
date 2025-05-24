@@ -18,6 +18,10 @@ async fn plot_started() {
 async fn player_joined(player : Player) {
     info!("WASM detected session {} joined", player.session_id());
     if let Some(profile) = player.profile() {
-        player.send_chat(&format!("<green>Hello, {}!</green>\n <yellow>Your UUID is {}.", profile.name, profile.uuid));
+        player.send_chat(&format!(
+            "<green>Hello, {}!</green>\n <yellow>Your UUID is {}.",
+            profile.name,
+            profile.uuid
+        ));
     }
 }

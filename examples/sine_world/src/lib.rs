@@ -11,7 +11,7 @@ pub fn flywheel_main() {
 
 
 async fn player_joined(player : Player) {
-    if let Some(profile) = player.profile() {
+    if let Some(profile) = player.fetch_profile() {
         player.send_title(
             "<orange><b><u>Sine World</></></>",
             &format!("<yellow>Welcome, {}!</>", profile.name),
@@ -33,8 +33,9 @@ async fn load_chunk(player : Player, chunk : ChunkPos) {
             let hx = (x as f32) * SINE_FREQ;
             let hz = (z as f32) * SINE_FREQ;
             let h  = ((hx.sin() * hz.sin() + 1.0) * SINE_AMP) as i64;
+            let mat = if (dx == 0 || dz == 0 || dx == 15 || dz == 15)
+                { "minecraft:black_concrete" } else { "minecraft:white_concrete" };
             for y in 0..=h {
-                let mat = if (dx == 0 || dz == 0 || dx == 15 || dz == 15) { "minecraft:black_concrete" } else { "minecraft:white_concrete" };
                 blocks.push((BlockPos::new(x, y, z), Block::new(mat),));
             }
         }
